@@ -39,17 +39,12 @@ import java.time.format.DateTimeFormatter;
 
 @Slf4j
 @SpringBootTest(classes = {CommonsAzureStorageApplication.class})
-public class Sample {
+class SampleTest {
   @Autowired private BlobUploader blobUploader;
   private static final String TEST_CONTAINER =
       LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")).toString() + 1;
 
-  @Test
-  @Order(1)
-  void contextLoads() {}
 
-  @Test
-  @Order(2)
   void containerOperations() throws IOException {
     // Blob-1
     String order1 = "RELEASED event for Order-1, Division 30, supplier 5216";

@@ -44,9 +44,7 @@ public class Config {
   @Bean
   public BlobServiceClient getBlobServiceClient() {
     log.info("connectionStr:{}",connectionStr);
-    final BlobServiceClient blobServiceClient =
-        new BlobServiceClientBuilder().connectionString(connectionStr).buildClient();
-    return blobServiceClient;
+    return new BlobServiceClientBuilder().connectionString(connectionStr).buildClient();
   }
 
 }
