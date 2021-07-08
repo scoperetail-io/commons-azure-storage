@@ -28,7 +28,6 @@ package com.soperetail.commons.azure.storage;
 
 import com.soperetail.commons.azure.storage.api.BlobUploader;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -37,6 +36,8 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 @Slf4j
 @SpringBootTest(classes = {CommonsAzureStorageApplication.class})
 class SampleTest {
@@ -44,6 +45,10 @@ class SampleTest {
   private static final String TEST_CONTAINER =
       LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")).toString() + 1;
 
+  @Test
+  void contextLoads() {
+    assertTrue(true);
+  }
 
   void containerOperations() throws IOException {
     // Blob-1
