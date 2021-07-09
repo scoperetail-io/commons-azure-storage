@@ -13,7 +13,7 @@ such as text or binary data.
 ```xml
 
 <dependency>
-    <groupId>com.soperetail.commons.azure.storage</groupId>
+    <groupId>com.soperetail.commons</groupId>
     <artifactId>commons-azure-storage</artifactId>
     <version>1.0</version>
 </dependency>
