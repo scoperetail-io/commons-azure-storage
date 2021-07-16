@@ -1,4 +1,4 @@
-package com.soperetail.commons.azure.storage;
+package com.scoperetail.commons.azure.storage.api;
 
 /*-
  * *****
@@ -26,14 +26,16 @@ package com.soperetail.commons.azure.storage;
  * =====
  */
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import java.io.IOException;
 
-@SpringBootApplication
-public class CommonsAzureStorageApplication {
-
-    public static void main(String[] args) {
-        SpringApplication.run(CommonsAzureStorageApplication.class, args);
-    }
-
+@FunctionalInterface
+public interface BlobUploader {
+  /**
+   * Creates a container (if not exists) and upload the blobData to given blobPath
+   * @param containerName
+   * @param blobData
+   * @param blobPath
+   * @throws IOException
+   */
+  void upload(final String containerName, final String blobData, final String blobPath) throws IOException;
 }

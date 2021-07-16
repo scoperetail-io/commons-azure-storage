@@ -1,4 +1,4 @@
-package com.soperetail.commons.azure.storage.config;
+package com.scoperetail.commons.azure.storage.impl;
 
 /*-
  * *****
@@ -26,25 +26,27 @@ package com.soperetail.commons.azure.storage.config;
  * =====
  */
 
+import org.springframework.stereotype.Component;
 import com.azure.storage.blob.BlobContainerClient;
-import com.azure.storage.blob.BlobServiceClient;
-import com.azure.storage.blob.BlobServiceClientBuilder;
+import com.azure.storage.blob.specialized.BlockBlobClient;
+import com.scoperetail.commons.azure.storage.api.DuplicateChecker;
+import com.scoperetail.commons.azure.storage.api.BlobContainerClientFactory;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
-@Configuration
+@Component
 @Slf4j
-public class Config {
+@AllArgsConstructor
+public class DuplicateCheckerImpl implements DuplicateChecker {
 
-  @Value("${azure.storage.blob.connection-string}")
-  private String connectionStr;
+  private final BlobContainerClientFactory blobContainerClientFactory;
 
-  @Bean
-  public BlobServiceClient getBlobServiceClient() {
-    log.info("connectionStr:{}",connectionStr);
-    return new BlobServiceClientBuilder().connectionString(connectionStr).buildClient();
+  @Override
+  public boolean exists(String containerName, String blobPath) {
+    log.trace("Checking if blob exist");
+    final BlobContainerClient blobContainerClient = blobContainerClientFactory.from(containerName);
+    BlockBlobClient blobClient = blobContainerClient.getBlobClient(blobPath).getBlockBlobClient();
+    return blobClient.exists();
   }
 
 }

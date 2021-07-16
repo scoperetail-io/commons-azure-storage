@@ -1,4 +1,4 @@
-package com.soperetail.commons.azure.storage.impl;
+package com.scoperetail.commons.azure.storage.impl;
 
 /*-
  * *****
@@ -28,8 +28,8 @@ package com.soperetail.commons.azure.storage.impl;
 
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.specialized.BlockBlobClient;
-import com.soperetail.commons.azure.storage.api.BlobContainerClientFactory;
-import com.soperetail.commons.azure.storage.api.BlobUploader;
+import com.scoperetail.commons.azure.storage.api.BlobContainerClientFactory;
+import com.scoperetail.commons.azure.storage.api.BlobUploader;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
