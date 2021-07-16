@@ -57,8 +57,8 @@ public class BlockBlobUtils implements BlobUtils {
       blobClient.upload(dataStream, blobData.length(), true);
       result = true;
     } catch (Exception e) {
-      log.error("Upload :: containerName:[{}], blobData Length:[{}], blobPath:[{}]", containerName,
-          blobData.length(), blobPath, e);
+      log.error("Upload Failed :: containerName:[{}], blobData Length:[{}], blobPath:[{}]",
+          containerName, blobData.length(), blobPath, e);
     }
     return result;
   }
