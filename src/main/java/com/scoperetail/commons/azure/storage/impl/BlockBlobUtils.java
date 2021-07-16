@@ -1,5 +1,10 @@
 package com.scoperetail.commons.azure.storage.impl;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import org.springframework.stereotype.Component;
+
 /*-
  * *****
  * commons-azure-storage
@@ -29,41 +34,44 @@ package com.scoperetail.commons.azure.storage.impl;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.specialized.BlockBlobClient;
 import com.scoperetail.commons.azure.storage.api.BlobContainerClientFactory;
-import com.scoperetail.commons.azure.storage.api.BlobUploader;
+import com.scoperetail.commons.azure.storage.api.BlobUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 
 @Component
 @Slf4j
 @AllArgsConstructor
-public class BlockBlobUploaderImpl implements BlobUploader {
+public class BlockBlobUtils implements BlobUtils {
   private final BlobContainerClientFactory blobContainerClientFactory;
 
   @Override
-  public void upload(final String containerName, final String blobData, final String blobPath)
-      throws IOException {
-    log.trace(
-        "containerName:[{}], blobData Length:[{}], blobPath:[{}]",
-        containerName,
-        blobData.length(),
-        blobPath);
-    final BlobContainerClient blobContainerClient = blobContainerClientFactory.from(containerName);
-    upload(blobContainerClient, blobData, blobPath);
+  public boolean upload(final String containerName, final String blobData, final String blobPath) {
+
+    boolean result = false;
+    log.trace("Upload :: containerName:[{}], blobData Length:[{}], blobPath:[{}]", containerName,
+        blobData.length(), blobPath);
+
+    BlockBlobClient blobClient = getBlockBlobClient(containerName, blobPath);
+    try (InputStream dataStream =
+        new ByteArrayInputStream(blobData.getBytes(StandardCharsets.UTF_8))) {
+      blobClient.upload(dataStream, blobData.length(), true);
+      result = true;
+    } catch (Exception e) {
+      log.error("Upload :: containerName:[{}], blobData Length:[{}], blobPath:[{}]", containerName,
+          blobData.length(), blobPath, e);
+    }
+    return result;
   }
 
-  private void upload(
-      final BlobContainerClient blobContainerClient, final String blobData, final String blobPath)
-      throws IOException {
-    // Create BlockBlobClient
-    BlockBlobClient blobClient = blobContainerClient.getBlobClient(blobPath).getBlockBlobClient();
-    InputStream dataStream = new ByteArrayInputStream(blobData.getBytes(StandardCharsets.UTF_8));
-    blobClient.upload(dataStream, blobData.length(), true);
-    dataStream.close();
+  @Override
+  public boolean exists(final String containerName, final String blobPath) {
+    boolean result = getBlockBlobClient(containerName, blobPath).exists();
+    log.info("containerName:[{}], blobPath:[{}], exists :[{}]", containerName, blobPath, result);
+    return result;
+  }
+
+  private BlockBlobClient getBlockBlobClient(final String containerName, final String blobPath) {
+    final BlobContainerClient blobContainerClient = blobContainerClientFactory.from(containerName);
+    return blobContainerClient.getBlobClient(blobPath).getBlockBlobClient();
   }
 }

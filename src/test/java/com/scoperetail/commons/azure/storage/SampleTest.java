@@ -34,13 +34,13 @@ import org.springframework.boot.test.context.SpringBootTest;
  * =====
  */
 
-import com.scoperetail.commons.azure.storage.api.BlobUploader;
+import com.scoperetail.commons.azure.storage.api.BlobUtils;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @SpringBootTest(classes = {CommonsAzureStorageApplication.class})
 class SampleTest {
-  @Autowired private BlobUploader blobUploader;
+  @Autowired private BlobUtils blobUploader;
   private static final String TEST_CONTAINER =
       LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")).toString() + 1;
 

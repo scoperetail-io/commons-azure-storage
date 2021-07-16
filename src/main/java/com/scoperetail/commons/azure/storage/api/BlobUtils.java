@@ -1,4 +1,4 @@
-package com.scoperetail.commons.azure.storage.config;
+package com.scoperetail.commons.azure.storage.api;
 
 /*-
  * *****
@@ -26,25 +26,18 @@ package com.scoperetail.commons.azure.storage.config;
  * =====
  */
 
-import com.azure.storage.blob.BlobContainerClient;
-import com.azure.storage.blob.BlobServiceClient;
-import com.azure.storage.blob.BlobServiceClientBuilder;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import java.io.IOException;
 
-@Configuration
-@Slf4j
-public class Config {
+public interface BlobUtils {
+  /**
+   * Creates a container (if not exists) and upload the blobData to given blobPath
+   * 
+   * @param containerName
+   * @param blobData
+   * @param blobPath
+   * @throws IOException
+   */
+  boolean upload(final String containerName, final String blobData, final String blobPath);
 
-  @Value("${azure.storage.blob.connection-string}")
-  private String connectionStr;
-
-  @Bean
-  public BlobServiceClient getBlobServiceClient() {
-    log.info("connectionStr:{}",connectionStr);
-    return new BlobServiceClientBuilder().connectionString(connectionStr).buildClient();
-  }
-
+  boolean exists(String containerName, String blobPath);
 }
