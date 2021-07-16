@@ -30,12 +30,6 @@ import com.azure.storage.blob.BlobContainerClient;
 
 @FunctionalInterface
 public interface BlobContainerClientFactory {
-  /**
-   * Returns an instance of BlobContainerClient referenced by {@code containerName}. It creates a
-   * new container if one doesnt exists already
-   *
-   * @param containerName
-   * @return BlobContainerClient
-   */
+  
   BlobContainerClient from(final String containerName);
 }

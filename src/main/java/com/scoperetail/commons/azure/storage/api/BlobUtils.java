@@ -26,17 +26,8 @@ package com.scoperetail.commons.azure.storage.api;
  * =====
  */
 
-import java.io.IOException;
-
 public interface BlobUtils {
-  /**
-   * Creates a container (if not exists) and upload the blobData to given blobPath
-   * 
-   * @param containerName
-   * @param blobData
-   * @param blobPath
-   * @throws IOException
-   */
+
   boolean upload(final String containerName, final String blobData, final String blobPath);
 
   boolean exists(String containerName, String blobPath);
