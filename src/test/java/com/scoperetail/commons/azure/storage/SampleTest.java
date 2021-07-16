@@ -1,4 +1,12 @@
-package com.soperetail.commons.azure.storage;
+package com.scoperetail.commons.azure.storage;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 /*-
  * *****
@@ -26,17 +34,8 @@ package com.soperetail.commons.azure.storage;
  * =====
  */
 
-import com.soperetail.commons.azure.storage.api.BlobUploader;
+import com.scoperetail.commons.azure.storage.api.BlobUploader;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
-import java.io.IOException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Slf4j
 @SpringBootTest(classes = {CommonsAzureStorageApplication.class})

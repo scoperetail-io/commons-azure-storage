@@ -1,4 +1,4 @@
-package com.soperetail.commons.azure.storage;
+package com.scoperetail.commons.azure.storage;
 
 /*-
  * *****
