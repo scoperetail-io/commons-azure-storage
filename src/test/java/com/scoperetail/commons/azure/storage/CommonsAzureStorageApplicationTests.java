@@ -1,4 +1,4 @@
-package com.soperetail.commons.azure.storage.api;
+package com.scoperetail.commons.azure.storage;
 
 /*-
  * *****
@@ -12,10 +12,10 @@ package com.soperetail.commons.azure.storage.api;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -26,16 +26,16 @@ package com.soperetail.commons.azure.storage.api;
  * =====
  */
 
-import com.azure.storage.blob.BlobContainerClient;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
-@FunctionalInterface
-public interface BlobContainerClientFactory {
-  /**
-   * Returns an instance of BlobContainerClient referenced by {@code containerName}. It creates a
-   * new container if one doesnt exists already
-   *
-   * @param containerName
-   * @return BlobContainerClient
-   */
-  BlobContainerClient from(final String containerName);
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+@SpringBootTest
+class CommonsAzureStorageApplicationTests {
+
+  @Test
+  void contextLoads() {
+    assertTrue(true);
+  }
 }

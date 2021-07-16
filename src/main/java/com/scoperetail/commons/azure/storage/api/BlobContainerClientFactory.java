@@ -1,4 +1,4 @@
-package com.soperetail.commons.azure.storage.config;
+package com.scoperetail.commons.azure.storage.api;
 
 /*-
  * *****
@@ -27,24 +27,15 @@ package com.soperetail.commons.azure.storage.config;
  */
 
 import com.azure.storage.blob.BlobContainerClient;
-import com.azure.storage.blob.BlobServiceClient;
-import com.azure.storage.blob.BlobServiceClientBuilder;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
-@Configuration
-@Slf4j
-public class Config {
-
-  @Value("${azure.storage.blob.connection-string}")
-  private String connectionStr;
-
-  @Bean
-  public BlobServiceClient getBlobServiceClient() {
-    log.info("connectionStr:{}",connectionStr);
-    return new BlobServiceClientBuilder().connectionString(connectionStr).buildClient();
-  }
-
+@FunctionalInterface
+public interface BlobContainerClientFactory {
+  /**
+   * Returns an instance of BlobContainerClient referenced by {@code containerName}. It creates a
+   * new container if one doesnt exists already
+   *
+   * @param containerName
+   * @return BlobContainerClient
+   */
+  BlobContainerClient from(final String containerName);
 }
