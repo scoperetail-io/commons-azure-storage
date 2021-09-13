@@ -30,8 +30,8 @@ public class Constants {
 
   private Constants() {}
 
-  public static String SLASH = "/";
-  public static String HTTPS = "https://";
-  public static String FILE_STORAGE = ".file.core.windows.net/";
+  public static final String SLASH = "/";
+  public static final String HTTPS = "https://";
+  public static final String FILE_STORAGE = ".file.core.windows.net/";
 
 }
