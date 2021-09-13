@@ -28,6 +28,11 @@ package com.scoperetail.commons.azure.storage.api;
 
 public interface FileUtils {
 
-  public boolean uploadFile(String content, String fileName, String directory, String fileShare);
+  public boolean uploadFile(String fileShare, String directory, String fileName, String message);
+
+  boolean deleteFile(String fileShare, String directory, String fileName);
+
+  boolean copyFile(String fileShare, String srcDirectory, String destinationDirectory,
+      String fileName);
 
 }
