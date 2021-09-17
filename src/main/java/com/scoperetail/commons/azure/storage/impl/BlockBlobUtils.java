@@ -34,39 +34,41 @@ import org.springframework.stereotype.Component;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.specialized.BlockBlobClient;
 import com.scoperetail.commons.azure.storage.api.BlobContainerClientFactory;
-import com.scoperetail.commons.azure.storage.api.BlobUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Component
+@Component("blockBlobUtils")
 @Slf4j
 @AllArgsConstructor
-public class BlockBlobUtils implements BlobUtils {
+public class BlockBlobUtils extends StorageUtilsImpl {
+
   private final BlobContainerClientFactory blobContainerClientFactory;
 
+  // FileName is not used in case of blob. Directory should have the entire path with fileName
   @Override
-  public boolean upload(final String containerName, final String blobData, final String blobPath) {
-
-    boolean result = false;
-    log.trace("Upload :: containerName:[{}], blobData Length:[{}], blobPath:[{}]", containerName,
-        blobData.length(), blobPath);
-
-    BlockBlobClient blobClient = getBlockBlobClient(containerName, blobPath);
-    try (InputStream dataStream =
-        new ByteArrayInputStream(blobData.getBytes(StandardCharsets.UTF_8))) {
-      blobClient.upload(dataStream, blobData.length(), true);
-      result = true;
-    } catch (Exception e) {
-      log.error("Upload Failed :: containerName:[{}], blobData Length:[{}], blobPath:[{}]",
-          containerName, blobData.length(), blobPath, e);
-    }
-    return result;
+  public void uploadData(String container, String directory, String fileName, String message) {
+    BlockBlobClient blobClient = getBlockBlobClient(container, directory);
+    InputStream dataStream = new ByteArrayInputStream(message.getBytes(StandardCharsets.UTF_8));
+    blobClient.upload(dataStream, message.length(), true);
   }
 
   @Override
-  public boolean exists(final String containerName, final String blobPath) {
-    boolean result = getBlockBlobClient(containerName, blobPath).exists();
-    log.info("containerName:[{}], blobPath:[{}], exists :[{}]", containerName, blobPath, result);
+  public void deleteData(String container, String directory, String fileName) {
+    BlockBlobClient blobClient = getBlockBlobClient(container, directory);
+    blobClient.delete();
+  }
+
+  @Override
+  public void copyData(String container, String destinationDirectory, String fileName,
+      String sourceURL) {
+    BlockBlobClient blobClient = getBlockBlobClient(container, destinationDirectory);
+    blobClient.copyFromUrl(sourceURL);
+  }
+
+  @Override
+  public boolean existsData(String container, String blobPath, String fileName) {
+    boolean result = getBlockBlobClient(container, blobPath).exists();
+    log.info("containerName:[{}], blobPath:[{}], exists :[{}]", container, blobPath, result);
     return result;
   }
 

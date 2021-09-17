@@ -1,9 +1,5 @@
 package com.scoperetail.commons.azure.storage.impl;
 
-import static com.scoperetail.commons.azure.storage.util.Constants.FILE_STORAGE;
-import static com.scoperetail.commons.azure.storage.util.Constants.HTTPS;
-import static com.scoperetail.commons.azure.storage.util.Constants.SLASH;
-
 /*-
  * *****
  * commons-azure-storage
@@ -33,58 +29,68 @@ import static com.scoperetail.commons.azure.storage.util.Constants.SLASH;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.azure.storage.file.share.ShareClient;
 import com.azure.storage.file.share.ShareClientBuilder;
 import com.azure.storage.file.share.ShareDirectoryClient;
 import com.azure.storage.file.share.ShareFileClient;
 import com.azure.storage.file.share.ShareFileClientBuilder;
-import com.scoperetail.commons.azure.storage.api.FileUtils;
+import com.scoperetail.commons.azure.storage.api.StorageUtils;
+import com.scoperetail.commons.azure.storage.config.AzureConfig;
 import lombok.extern.slf4j.Slf4j;
 
-@Component
+@Component("fileUtils")
 @Slf4j
-public class FileUtilsImpl implements FileUtils {
+public class FileUtilsImpl extends StorageUtilsImpl implements StorageUtils {
 
-  @Value("${azure.storage.connection-string}")
-  private String connectStr;
-
-  @Value("${azure.storage.account-name}")
-  private String accountName;
+  @Autowired
+  private AzureConfig azureConfig;
 
   @Override
-  public boolean uploadFile(String fileShare, String directory, String fileName, String message) {
-    log.info("Trying to upload File :: {} in directory :: {}, fileshare :: {}", fileName, directory,
-        fileShare);
-    boolean result = false;
-    try {
-      if (createFileShare(fileShare) && createDirectory(fileShare, directory)) {
-        ShareDirectoryClient dirClient = getShareDirectoryClient(fileShare, directory);
-        InputStream dataStream = new ByteArrayInputStream(message.getBytes(StandardCharsets.UTF_8));
-        ShareFileClient fileClient = dirClient.getFileClient(fileName);
-        fileClient.create(message.length());
-        fileClient.uploadRange(dataStream, message.length());
-        result = true;
-        log.info("File :: {} uploaded successfully in directory :: {}, fileshare :: {}", fileName,
-            directory, fileShare);
-      }
-    } catch (Exception e) {
-      log.error("UploadFile exception: {}", e);
-    }
-    return result;
+  public void uploadData(String fileShare, String directory, String fileName, String message) {
+    ShareFileClient fileClient = getShareFileClient(fileShare, directory, fileName);
+    InputStream dataStream = new ByteArrayInputStream(message.getBytes(StandardCharsets.UTF_8));
+    fileClient.create(message.length());
+    fileClient.uploadRange(dataStream, message.length());
   }
 
-  private boolean createFileShare(String shareName) {
+  @Override
+  public void deleteData(String fileShare, String directory, String fileName) {
+    ShareFileClient fileClient = getShareFileClient(fileShare, directory, fileName);
+    fileClient.delete();
+  }
+
+  @Override
+  public void copyData(String fileShare, String destinationDirectory, String fileName,
+      String sourceURL) {
+    ShareFileClient fileClient = getShareFileClient(fileShare, destinationDirectory, fileName);
+    fileClient.beginCopy(sourceURL, null, null);
+  }
+
+  @Override
+  public boolean existsData(String fileShare, String directory, String fileName) {
+    return getShareFileClient(fileShare, directory, fileName).exists();
+  }
+
+  private ShareFileClient getShareFileClient(String fileShare, String directory, String fileName) {
+    ShareDirectoryClient dirClient =
+        new ShareFileClientBuilder().connectionString(azureConfig.getConnectionStr())
+            .shareName(fileShare).resourcePath(directory).buildDirectoryClient();
+    return dirClient.getFileClient(fileName);
+  }
+
+  public boolean createFileShare(String fileShare) {
     boolean result = true;
     try {
-      ShareClient shareClient = new ShareClientBuilder().connectionString(connectStr)
-          .shareName(shareName.toLowerCase()).buildClient();
+      ShareClient shareClient =
+          new ShareClientBuilder().connectionString(azureConfig.getConnectionStr())
+              .shareName(fileShare.toLowerCase()).buildClient();
       if (shareClient.exists()) {
-        log.trace("FileShare already exists :: {}", shareName);
+        log.trace("FileShare already exists :: {}", fileShare);
       } else {
         shareClient.create();
-        log.info("New FileShare created :: {}", shareName);
+        log.info("New FileShare created :: {}", fileShare);
       }
     } catch (Exception e) {
       log.error("Create FileShare Exception: " + e);
@@ -93,18 +99,18 @@ public class FileUtilsImpl implements FileUtils {
     return result;
   }
 
-  private boolean createDirectory(String shareName, String dirName) {
+  public boolean createDirectory(String fileShare, String directory) {
     boolean result = false;
     try {
       // Azure does not created nested directories automatically.
       // To create directory like :: /appl/sdavz/live/cams, we need to create 4 directories.
-      // 1. /appl       2. /appl/sdavz      3. /appl/sdavz/live      4. /appl/sdavz/live/cams
-      String[] directories = dirName.split(SLASH);
+      // 1. /appl 2. /appl/sdavz 3. /appl/sdavz/live 4. /appl/sdavz/live/cams
+      String[] directories = directory.split("/");
       StringBuilder currentDirectory = new StringBuilder();
       for (int i = 0; i < directories.length; i++) {
         currentDirectory.append(directories[i]);
-        createNestedDirectories(shareName, currentDirectory.toString());
-        currentDirectory.append(SLASH);
+        createNestedDirectories(fileShare, currentDirectory.toString());
+        currentDirectory.append("/");
       }
       result = true;
     } catch (Exception e) {
@@ -113,57 +119,15 @@ public class FileUtilsImpl implements FileUtils {
     return result;
   }
 
-  private void createNestedDirectories(String shareName, String dirName) {
-    ShareDirectoryClient dirClient = getShareDirectoryClient(shareName, dirName);
+  private void createNestedDirectories(String fileShare, String directory) {
+    ShareDirectoryClient dirClient =
+        new ShareFileClientBuilder().connectionString(azureConfig.getConnectionStr())
+            .shareName(fileShare).resourcePath(directory).buildDirectoryClient();
     if (dirClient.exists()) {
-      log.trace("Directory :: {} already exists under share :: {}", dirName, shareName);
+      log.trace("Directory :: {} already exists under share :: {}", directory, fileShare);
     } else {
       dirClient.create();
-      log.info("New Directory :: {} created under share :: {}", dirName, shareName);
+      log.info("New Directory :: {} created under share :: {}", directory, fileShare);
     }
-  }
-
-  @Override
-  public boolean copyFile(String fileShare, String srcDirectory, String destinationDirectory,
-      String fileName) {
-    log.info("Trying to copy file :: {} from :: {} to :: {}", fileName, srcDirectory,
-        destinationDirectory);
-    boolean result = false;
-    try {
-      if (createDirectory(fileShare, destinationDirectory)) {
-        ShareDirectoryClient dirClient = getShareDirectoryClient(fileShare, destinationDirectory);
-        ShareFileClient fileClient = dirClient.getFileClient(fileName);
-        String sourceFileURL = HTTPS + accountName + FILE_STORAGE + fileShare + SLASH + srcDirectory
-            + SLASH + fileName;
-        fileClient.beginCopy(sourceFileURL, null, null);
-        result = true;
-        log.info("Successfully copied file from :: {} to :: {}", sourceFileURL,
-            destinationDirectory);
-      }
-    } catch (Exception e) {
-      log.error("CopyFile exception: {}", e);
-    }
-    return result;
-  }
-
-  @Override
-  public boolean deleteFile(String fileShare, String directory, String fileName) {
-    log.info("Trying to delete file :: {} from directory :: {}", fileName, directory);
-    boolean result = false;
-    try {
-      ShareDirectoryClient dirClient = getShareDirectoryClient(fileShare, directory);
-      ShareFileClient fileClient = dirClient.getFileClient(fileName);
-      fileClient.delete();
-      result = true;
-      log.info("Successfully deleted file :: {} from directory :: {}", fileName, directory);
-    } catch (Exception e) {
-      log.error("DeleteFile exception: {}", e);
-    }
-    return result;
-  }
-
-  private ShareDirectoryClient getShareDirectoryClient(String shareName, String dirName) {
-    return new ShareFileClientBuilder().connectionString(connectStr).shareName(shareName)
-        .resourcePath(dirName).buildDirectoryClient();
   }
 }
