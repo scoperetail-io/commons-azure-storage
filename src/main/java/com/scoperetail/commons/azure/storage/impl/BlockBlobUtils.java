@@ -34,13 +34,14 @@ import org.springframework.stereotype.Component;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.specialized.BlockBlobClient;
 import com.scoperetail.commons.azure.storage.api.BlobContainerClientFactory;
+import com.scoperetail.commons.azure.storage.api.StorageUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Component("blockBlobUtils")
 @Slf4j
 @AllArgsConstructor
-public class BlockBlobUtils extends StorageUtilsImpl {
+public class BlockBlobUtils extends AbstractStorageUtils implements StorageUtils{
 
   private final BlobContainerClientFactory blobContainerClientFactory;
 

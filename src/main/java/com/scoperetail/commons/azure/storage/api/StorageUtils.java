@@ -28,13 +28,13 @@ package com.scoperetail.commons.azure.storage.api;
 
 public interface StorageUtils {
 
-  public void uploadData(String container, String directory, String fileName, String message);
+  public boolean upload(String container, String directory, String fileName, String message);
 
-  public void deleteData(String container, String directory, String fileName);
+  public boolean delete(String container, String directory, String fileName);
 
-  public void copyData(String container, String destinationDirectory, String fileName,
+  public boolean copy(String container, String destinationDirectory, String fileName,
       String sourceURL);
 
-  public boolean existsData(String container, String directory, String fileName);
+  public boolean exists(String container, String directory, String fileName);
 
 }

@@ -30,7 +30,7 @@ import com.scoperetail.commons.azure.storage.api.StorageUtils;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public abstract class StorageUtilsImpl implements StorageUtils {
+public abstract class AbstractStorageUtils implements StorageUtils {
 
   public boolean upload(String container, String directory, String fileName, String message) {
     boolean result = false;
@@ -82,4 +82,14 @@ public abstract class StorageUtilsImpl implements StorageUtils {
         directory, fileName);
     return existsData(container, directory, fileName);
   }
+
+  public abstract void uploadData(String container, String directory, String fileName,
+      String message);
+
+  public abstract void deleteData(String container, String directory, String fileName);
+
+  public abstract void copyData(String container, String destinationDirectory, String fileName,
+      String sourceURL);
+
+  public abstract boolean existsData(String container, String directory, String fileName);
 }

@@ -42,7 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Component("fileUtils")
 @Slf4j
-public class FileUtilsImpl extends StorageUtilsImpl implements StorageUtils {
+public class FileUtilsImpl extends AbstractStorageUtils implements StorageUtils {
 
   @Autowired
   private AzureConfig azureConfig;
