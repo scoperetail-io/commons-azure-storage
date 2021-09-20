@@ -31,13 +31,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @Configuration
 @Slf4j
-public class AzureBlobConfig {
+@Getter
+public class AzureConfig {
 
-  @Value("${azure.storage.blob.connection-string}")
+  @Value("${azure.storage.connection-string}")
   private String connectionStr;
 
   @Bean

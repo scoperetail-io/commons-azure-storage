@@ -26,9 +26,15 @@ package com.scoperetail.commons.azure.storage.api;
  * =====
  */
 
-public interface BlobUtils {
+public interface StorageUtils {
 
-  boolean upload(final String containerName, final String blobData, final String blobPath);
+  public boolean upload(String container, String directory, String fileName, String message);
 
-  boolean exists(String containerName, String blobPath);
+  public boolean delete(String container, String directory, String fileName);
+
+  public boolean copy(String container, String destinationDirectory, String fileName,
+      String sourceURL);
+
+  public boolean exists(String container, String directory, String fileName);
+
 }
