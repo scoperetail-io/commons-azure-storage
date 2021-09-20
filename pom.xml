@@ -9,7 +9,7 @@
     </parent>
     <groupId>com.scoperetail.commons</groupId>
     <artifactId>commons-azure-storage</artifactId>
-    <version>1.3-SNAPSHOT</version>
+    <version>1.3</version>
     <name>commons-azure-storage</name>
     <description>Utility library for Azure Blob Storage</description>
     <url>https://github.com/scoperetail-io/${project.artifactId}</url>
@@ -17,7 +17,7 @@
         <developerConnection>
             scm:git:git@github.com:scoperetail-io/${project.artifactId}.git
         </developerConnection>
-        <tag>HEAD</tag>
+        <tag>commons-azure-storage-1.3</tag>
         <url>https://github.com/scoperetail-io/${project.artifactId}</url>
     </scm>
     <properties>
