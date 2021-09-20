@@ -44,36 +44,36 @@ public class BlockBlobUtils extends StorageUtilsImpl {
 
   private final BlobContainerClientFactory blobContainerClientFactory;
 
-  // FileName is not used in case of blob. Directory should have the entire path with fileName
   @Override
   public void uploadData(String container, String directory, String fileName, String message) {
-    BlockBlobClient blobClient = getBlockBlobClient(container, directory);
+    BlockBlobClient blobClient = getBlockBlobClient(container, directory, fileName);
     InputStream dataStream = new ByteArrayInputStream(message.getBytes(StandardCharsets.UTF_8));
     blobClient.upload(dataStream, message.length(), true);
   }
 
   @Override
   public void deleteData(String container, String directory, String fileName) {
-    BlockBlobClient blobClient = getBlockBlobClient(container, directory);
+    BlockBlobClient blobClient = getBlockBlobClient(container, directory, fileName);
     blobClient.delete();
   }
 
   @Override
   public void copyData(String container, String destinationDirectory, String fileName,
       String sourceURL) {
-    BlockBlobClient blobClient = getBlockBlobClient(container, destinationDirectory);
+    BlockBlobClient blobClient = getBlockBlobClient(container, destinationDirectory, fileName);
     blobClient.copyFromUrl(sourceURL);
   }
 
   @Override
   public boolean existsData(String container, String blobPath, String fileName) {
-    boolean result = getBlockBlobClient(container, blobPath).exists();
+    boolean result = getBlockBlobClient(container, blobPath, fileName).exists();
     log.info("containerName:[{}], blobPath:[{}], exists :[{}]", container, blobPath, result);
     return result;
   }
 
-  private BlockBlobClient getBlockBlobClient(final String containerName, final String blobPath) {
+  private BlockBlobClient getBlockBlobClient(final String containerName, final String directory,
+      final String fileName) {
     final BlobContainerClient blobContainerClient = blobContainerClientFactory.from(containerName);
-    return blobContainerClient.getBlobClient(blobPath).getBlockBlobClient();
+    return blobContainerClient.getBlobClient(directory + "/" + fileName).getBlockBlobClient();
   }
 }
