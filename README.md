@@ -30,7 +30,7 @@ azure.storage.account-key=my-access-key
 # Fill storage blob endpoint URL copied from portal
 azure.storage.blob-endpoint=my-https-url
 
-azure.storage.blob.connection-string=my-connection-string
+azure.storage.connection-string=my-connection-string
 ```
 * Autowire [BlobUploader][2] in your spring boot application
 
