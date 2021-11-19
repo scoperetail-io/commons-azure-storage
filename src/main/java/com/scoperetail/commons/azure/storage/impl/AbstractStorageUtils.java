@@ -34,35 +34,19 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public abstract class AbstractStorageUtils implements StorageUtils {
 
-  public boolean upload(String container, String directory, String fileName, String message) {
-    boolean result = false;
+  public String upload(String container, String directory, String fileName, String message,
+      Boolean isPublic) {
+    String result = null;
     log.info("Trying to upload, Container :: {}, directory :: {}, file :: {}", container, directory,
         fileName);
     try {
-      uploadData(container, directory, fileName, message);
-      result = true;
+      result = uploadData(container, directory, fileName, message, isPublic);
       log.info("Successfully uploaded, Container :: {}, directory :: {}, file :: {}", container,
           directory, fileName);
     } catch (Exception e) {
       log.error("Upload Exception :: ", e);
     }
     return result;
-  }
-
-  @Override
-  public String uploadWithURLResponse(String container, String directory, String fileName,
-      String message) {
-    log.info("Trying to upload, Container :: {}, directory :: {}, file :: {}", container, directory,
-        fileName);
-    String url = null;
-    try {
-      url = uploadWithURLResponseData(container, directory, fileName, message);
-      log.info("Successfully uploaded, Container :: {}, directory :: {}, file :: {}", container,
-          directory, fileName);
-    } catch (Exception e) {
-      log.error("Upload Exception :: ", e);
-    }
-    return url;
   }
 
   public boolean delete(String container, String directory, String fileName) {
@@ -101,11 +85,8 @@ public abstract class AbstractStorageUtils implements StorageUtils {
     return existsData(container, directory, fileName);
   }
 
-  public abstract void uploadData(String container, String directory, String fileName,
-      String message);
-
-  public abstract String uploadWithURLResponseData(String container, String directory,
-      String fileName, String message) throws UnsupportedEncodingException;
+  public abstract String uploadData(String container, String directory, String fileName,
+      String message, Boolean isPublic) throws UnsupportedEncodingException;
 
   public abstract void deleteData(String container, String directory, String fileName);
 

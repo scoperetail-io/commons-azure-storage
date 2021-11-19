@@ -50,24 +50,13 @@ public class FileUtilsImpl extends AbstractStorageUtils implements StorageUtils 
   private AzureConfig azureConfig;
 
   @Override
-  public void uploadData(String fileShare, String directory, String fileName, String message) {
-    uploadFile(fileShare, directory, fileName, message);
-  }
-
-  @Override
-  public String uploadWithURLResponseData(String fileShare, String directory, String fileName,
-      String message) throws UnsupportedEncodingException {
-    String url = uploadFile(fileShare, directory, fileName, message).getFileUrl();
-    return URLDecoder.decode(url, StandardCharsets.UTF_8.toString());
-  }
-
-  private ShareFileClient uploadFile(String fileShare, String directory, String fileName,
-      String message) {
+  public String uploadData(String fileShare, String directory, String fileName, String message,
+      Boolean isPublic) throws UnsupportedEncodingException {
     ShareFileClient fileClient = getShareFileClient(fileShare, directory, fileName);
     InputStream dataStream = new ByteArrayInputStream(message.getBytes(StandardCharsets.UTF_8));
     fileClient.create(message.length());
     fileClient.uploadRange(dataStream, message.length());
-    return fileClient;
+    return URLDecoder.decode(fileClient.getFileUrl(), StandardCharsets.UTF_8.toString());
   }
 
   @Override

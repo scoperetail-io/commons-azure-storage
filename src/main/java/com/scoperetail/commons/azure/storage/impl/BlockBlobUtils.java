@@ -48,24 +48,12 @@ public class BlockBlobUtils extends AbstractStorageUtils implements StorageUtils
   private final BlobContainerClientFactory blobContainerClientFactory;
 
   @Override
-  public void uploadData(String container, String directory, String fileName, String message) {
-    uploadMessage(container, directory, fileName, message, false);
-  }
-
-  @Override
-  public String uploadWithURLResponseData(String container, String directory, String fileName,
-      String message) throws UnsupportedEncodingException {
-    String url = uploadMessage(container, directory, fileName, message, true).getBlobUrl();
-    return URLDecoder.decode(url, StandardCharsets.UTF_8.toString());
-  }
-
-  private BlockBlobClient uploadMessage(String container, String directory, String fileName,
-      String message, Boolean publicReadAccess) {
-    BlockBlobClient blobClient =
-        getBlockBlobClient(container, directory, fileName, publicReadAccess);
+  public String uploadData(String container, String directory, String fileName, String message,
+      Boolean isPublic) throws UnsupportedEncodingException {
+    BlockBlobClient blobClient = getBlockBlobClient(container, directory, fileName, isPublic);
     InputStream dataStream = new ByteArrayInputStream(message.getBytes(StandardCharsets.UTF_8));
     blobClient.upload(dataStream, message.length(), true);
-    return blobClient;
+    return URLDecoder.decode(blobClient.getBlobUrl(), StandardCharsets.UTF_8.toString());
   }
 
   @Override
@@ -90,10 +78,11 @@ public class BlockBlobUtils extends AbstractStorageUtils implements StorageUtils
   }
 
   private BlockBlobClient getBlockBlobClient(final String containerName, final String directory,
-      final String fileName, final Boolean publicReadAccess) {
+      final String fileName, final Boolean isPublic) {
     final BlobContainerClient blobContainerClient =
-        blobContainerClientFactory.from(containerName, publicReadAccess);
+        blobContainerClientFactory.from(containerName, isPublic);
     return blobContainerClient.getBlobClient(directory + "/" + fileName).getBlockBlobClient();
   }
+
 
 }
