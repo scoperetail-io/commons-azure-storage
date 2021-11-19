@@ -28,6 +28,7 @@ package com.scoperetail.commons.azure.storage.impl;
 
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.models.PublicAccessType;
 import com.scoperetail.commons.azure.storage.api.BlobContainerClientFactory;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +43,7 @@ public class BlobContainerClientFactoryImpl implements BlobContainerClientFactor
   private final BlobServiceClient blobServiceClient;
 
   @Override
-  public BlobContainerClient from(final String containerName) {
+  public BlobContainerClient from(final String containerName, final Boolean publicReadAccess) {
     Objects.requireNonNull(containerName);
     final BlobContainerClient blobContainerClient =
         blobServiceClient.getBlobContainerClient(containerName);
@@ -52,6 +53,9 @@ public class BlobContainerClientFactoryImpl implements BlobContainerClientFactor
     } else {
       log.info("Creating Container:[{}]", containerName);
       blobContainerClient.create();
+      if (publicReadAccess) {
+        blobContainerClient.setAccessPolicy(PublicAccessType.BLOB, null);
+      }
     }
     return blobContainerClient;
   }

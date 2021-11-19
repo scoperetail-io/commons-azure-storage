@@ -1,5 +1,7 @@
 package com.scoperetail.commons.azure.storage.impl;
 
+import java.io.UnsupportedEncodingException;
+
 /*-
  * *****
  * commons-azure-storage
@@ -47,6 +49,22 @@ public abstract class AbstractStorageUtils implements StorageUtils {
     return result;
   }
 
+  @Override
+  public String uploadWithURLResponse(String container, String directory, String fileName,
+      String message) {
+    log.info("Trying to upload, Container :: {}, directory :: {}, file :: {}", container, directory,
+        fileName);
+    String url = null;
+    try {
+      url = uploadWithURLResponseData(container, directory, fileName, message);
+      log.info("Successfully uploaded, Container :: {}, directory :: {}, file :: {}", container,
+          directory, fileName);
+    } catch (Exception e) {
+      log.error("Upload Exception :: ", e);
+    }
+    return url;
+  }
+
   public boolean delete(String container, String directory, String fileName) {
     boolean result = false;
     log.info("Trying to delete, Container :: {}, directory :: {}, file :: {}", container, directory,
@@ -85,6 +103,9 @@ public abstract class AbstractStorageUtils implements StorageUtils {
 
   public abstract void uploadData(String container, String directory, String fileName,
       String message);
+
+  public abstract String uploadWithURLResponseData(String container, String directory,
+      String fileName, String message) throws UnsupportedEncodingException;
 
   public abstract void deleteData(String container, String directory, String fileName);
 

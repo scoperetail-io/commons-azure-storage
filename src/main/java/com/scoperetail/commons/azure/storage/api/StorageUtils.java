@@ -29,6 +29,8 @@ package com.scoperetail.commons.azure.storage.api;
 public interface StorageUtils {
 
   public boolean upload(String container, String directory, String fileName, String message);
+  
+  public String uploadWithURLResponse(String container, String directory, String fileName, String message);
 
   public boolean delete(String container, String directory, String fileName);
 
