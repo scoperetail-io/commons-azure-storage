@@ -31,5 +31,5 @@ import com.azure.storage.blob.BlobContainerClient;
 @FunctionalInterface
 public interface BlobContainerClientFactory {
 
-  BlobContainerClient from(final String containerName, Boolean publicReadAccess);
+  BlobContainerClient from(final String containerName, Boolean isPublic);
 }
