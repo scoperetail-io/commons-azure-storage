@@ -28,6 +28,8 @@ package com.scoperetail.commons.azure.storage.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -48,11 +50,13 @@ public class FileUtilsImpl extends AbstractStorageUtils implements StorageUtils 
   private AzureConfig azureConfig;
 
   @Override
-  public void uploadData(String fileShare, String directory, String fileName, String message) {
+  public String uploadData(String fileShare, String directory, String fileName, String message,
+      Boolean isPublic) throws UnsupportedEncodingException {
     ShareFileClient fileClient = getShareFileClient(fileShare, directory, fileName);
     InputStream dataStream = new ByteArrayInputStream(message.getBytes(StandardCharsets.UTF_8));
     fileClient.create(message.length());
     fileClient.uploadRange(dataStream, message.length());
+    return URLDecoder.decode(fileClient.getFileUrl(), StandardCharsets.UTF_8.toString());
   }
 
   @Override

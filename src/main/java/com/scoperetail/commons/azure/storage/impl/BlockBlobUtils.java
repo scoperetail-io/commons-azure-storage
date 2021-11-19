@@ -2,6 +2,8 @@ package com.scoperetail.commons.azure.storage.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import org.springframework.stereotype.Component;
 
@@ -41,40 +43,46 @@ import lombok.extern.slf4j.Slf4j;
 @Component("blockBlobUtils")
 @Slf4j
 @AllArgsConstructor
-public class BlockBlobUtils extends AbstractStorageUtils implements StorageUtils{
+public class BlockBlobUtils extends AbstractStorageUtils implements StorageUtils {
 
   private final BlobContainerClientFactory blobContainerClientFactory;
 
   @Override
-  public void uploadData(String container, String directory, String fileName, String message) {
-    BlockBlobClient blobClient = getBlockBlobClient(container, directory, fileName);
+  public String uploadData(String container, String directory, String fileName, String message,
+      Boolean isPublic) throws UnsupportedEncodingException {
+    BlockBlobClient blobClient = getBlockBlobClient(container, directory, fileName, isPublic);
     InputStream dataStream = new ByteArrayInputStream(message.getBytes(StandardCharsets.UTF_8));
     blobClient.upload(dataStream, message.length(), true);
+    return URLDecoder.decode(blobClient.getBlobUrl(), StandardCharsets.UTF_8.toString());
   }
 
   @Override
   public void deleteData(String container, String directory, String fileName) {
-    BlockBlobClient blobClient = getBlockBlobClient(container, directory, fileName);
+    BlockBlobClient blobClient = getBlockBlobClient(container, directory, fileName, false);
     blobClient.delete();
   }
 
   @Override
   public void copyData(String container, String destinationDirectory, String fileName,
       String sourceURL) {
-    BlockBlobClient blobClient = getBlockBlobClient(container, destinationDirectory, fileName);
+    BlockBlobClient blobClient =
+        getBlockBlobClient(container, destinationDirectory, fileName, false);
     blobClient.copyFromUrl(sourceURL);
   }
 
   @Override
   public boolean existsData(String container, String blobPath, String fileName) {
-    boolean result = getBlockBlobClient(container, blobPath, fileName).exists();
+    boolean result = getBlockBlobClient(container, blobPath, fileName, false).exists();
     log.info("containerName:[{}], blobPath:[{}], exists :[{}]", container, blobPath, result);
     return result;
   }
 
   private BlockBlobClient getBlockBlobClient(final String containerName, final String directory,
-      final String fileName) {
-    final BlobContainerClient blobContainerClient = blobContainerClientFactory.from(containerName);
+      final String fileName, final Boolean isPublic) {
+    final BlobContainerClient blobContainerClient =
+        blobContainerClientFactory.from(containerName, isPublic);
     return blobContainerClient.getBlobClient(directory + "/" + fileName).getBlockBlobClient();
   }
+
+
 }

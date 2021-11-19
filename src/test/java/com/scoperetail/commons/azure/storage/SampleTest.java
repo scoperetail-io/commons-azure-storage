@@ -52,7 +52,7 @@ class SampleTest {
     String order1 = "RELEASED event for Order-1, Division 30, supplier 5216";
     // Blob-2
     String order2 = "RELEASED event for Order-2, Division 30, supplier 5217";
-    blobUploader.upload(TEST_CONTAINER, order1, "RELEASED/30/5216/ORDER-1.xml", null);
-    blobUploader.upload(TEST_CONTAINER, order2, "RELEASED/30/5217/ORDER-2.xml", null);
+    blobUploader.upload(TEST_CONTAINER, order1, "RELEASED/30/5216/ORDER-1.xml", null, false);
+    blobUploader.upload(TEST_CONTAINER, order2, "RELEASED/30/5217/ORDER-2.xml", null, false);
   }
 }
