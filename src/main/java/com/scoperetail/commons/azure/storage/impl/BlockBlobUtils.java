@@ -3,8 +3,10 @@ package com.scoperetail.commons.azure.storage.impl;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.time.OffsetDateTime;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /*-
@@ -34,18 +36,25 @@ import org.springframework.stereotype.Component;
  */
 
 import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.sas.BlobSasPermission;
+import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import com.azure.storage.blob.specialized.BlockBlobClient;
 import com.scoperetail.commons.azure.storage.api.BlobContainerClientFactory;
 import com.scoperetail.commons.azure.storage.api.StorageUtils;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Component("blockBlobUtils")
 @Slf4j
-@AllArgsConstructor
 public class BlockBlobUtils extends AbstractStorageUtils implements StorageUtils {
 
-  private final BlobContainerClientFactory blobContainerClientFactory;
+  @Value("${sas.expiray.days:15}")
+  private Integer sasExpiryDays;
+
+  @Value("${sas.read.permission:true}")
+  private Boolean sasReadPermission;
+
+  @Autowired
+  private BlobContainerClientFactory blobContainerClientFactory;
 
   @Override
   public String uploadData(String container, String directory, String fileName, String message,
@@ -53,7 +62,12 @@ public class BlockBlobUtils extends AbstractStorageUtils implements StorageUtils
     BlockBlobClient blobClient = getBlockBlobClient(container, directory, fileName, isPublic);
     InputStream dataStream = new ByteArrayInputStream(message.getBytes(StandardCharsets.UTF_8));
     blobClient.upload(dataStream, message.length(), true);
-    return URLDecoder.decode(blobClient.getBlobUrl(), StandardCharsets.UTF_8.toString());
+    return blobClient.getBlobUrl() + "?" + blobClient.generateSas(getBlobServiceSignatureValues());
+  }
+
+  private BlobServiceSasSignatureValues getBlobServiceSignatureValues() {
+    return new BlobServiceSasSignatureValues(OffsetDateTime.now().plusDays(sasExpiryDays),
+        new BlobSasPermission().setReadPermission(sasReadPermission));
   }
 
   @Override
