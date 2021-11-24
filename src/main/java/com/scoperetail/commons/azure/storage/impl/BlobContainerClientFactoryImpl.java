@@ -1,5 +1,9 @@
 package com.scoperetail.commons.azure.storage.impl;
 
+import java.util.Objects;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 /*-
  * *****
  * commons-azure-storage
@@ -32,15 +36,13 @@ import com.azure.storage.blob.models.PublicAccessType;
 import com.scoperetail.commons.azure.storage.api.BlobContainerClientFactory;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-
-import java.util.Objects;
 
 @Component
 @Slf4j
 @AllArgsConstructor
 public class BlobContainerClientFactoryImpl implements BlobContainerClientFactory {
-  private final BlobServiceClient blobServiceClient;
+  
+  private BlobServiceClient blobServiceClient;
 
   @Override
   public BlobContainerClient from(final String containerName, final Boolean isPublic) {
