@@ -47,13 +47,18 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class BlockBlobUtils extends AbstractStorageUtils implements StorageUtils {
 
-  @Value("${sas.expiry.days:15}")
+  public BlockBlobUtils(@Value("${sas.expiry.days:15}") Integer sasExpiryDays,
+      @Value("${sas.read.permission:true}") Boolean sasReadPermission,
+      BlobContainerClientFactory blobContainerClientFactory) {
+    this.blobContainerClientFactory = blobContainerClientFactory;
+    this.sasExpiryDays = sasExpiryDays;
+    this.sasReadPermission = sasReadPermission;
+  }
+
   private Integer sasExpiryDays;
 
-  @Value("${sas.read.permission:true}")
   private Boolean sasReadPermission;
 
-  @Autowired
   private BlobContainerClientFactory blobContainerClientFactory;
 
   @Override

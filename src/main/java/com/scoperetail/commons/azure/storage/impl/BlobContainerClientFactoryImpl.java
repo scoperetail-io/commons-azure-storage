@@ -34,13 +34,14 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.PublicAccessType;
 import com.scoperetail.commons.azure.storage.api.BlobContainerClientFactory;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
+@AllArgsConstructor
 public class BlobContainerClientFactoryImpl implements BlobContainerClientFactory {
   
-  @Autowired
   private BlobServiceClient blobServiceClient;
 
   @Override
