@@ -47,7 +47,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class BlockBlobUtils extends AbstractStorageUtils implements StorageUtils {
 
-  @Value("${sas.expiray.days:15}")
+  @Value("${sas.expiry.days:15}")
   private Integer sasExpiryDays;
 
   @Value("${sas.read.permission:true}")
