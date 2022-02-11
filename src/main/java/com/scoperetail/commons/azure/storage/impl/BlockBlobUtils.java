@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -64,10 +63,14 @@ public class BlockBlobUtils extends AbstractStorageUtils implements StorageUtils
   @Override
   public String uploadData(String container, String directory, String fileName, String message,
       Boolean isPublic) throws UnsupportedEncodingException {
-    BlockBlobClient blobClient = getBlockBlobClient(container, directory, fileName, isPublic);
+    BlockBlobClient blobClient = getBlockBlobClient(container, directory, fileName);
     InputStream dataStream = new ByteArrayInputStream(message.getBytes(StandardCharsets.UTF_8));
     blobClient.upload(dataStream, message.length(), true);
-    return blobClient.getBlobUrl() + "?" + blobClient.generateSas(getBlobServiceSignatureValues());
+    String uploadURL = blobClient.getBlobUrl();
+    if (isPublic) {
+      uploadURL += "?" + blobClient.generateSas(getBlobServiceSignatureValues());
+    }
+    return uploadURL;
   }
 
   private BlobServiceSasSignatureValues getBlobServiceSignatureValues() {
@@ -77,31 +80,28 @@ public class BlockBlobUtils extends AbstractStorageUtils implements StorageUtils
 
   @Override
   public void deleteData(String container, String directory, String fileName) {
-    BlockBlobClient blobClient = getBlockBlobClient(container, directory, fileName, false);
+    BlockBlobClient blobClient = getBlockBlobClient(container, directory, fileName);
     blobClient.delete();
   }
 
   @Override
   public void copyData(String container, String destinationDirectory, String fileName,
       String sourceURL) {
-    BlockBlobClient blobClient =
-        getBlockBlobClient(container, destinationDirectory, fileName, false);
+    BlockBlobClient blobClient = getBlockBlobClient(container, destinationDirectory, fileName);
     blobClient.copyFromUrl(sourceURL);
   }
 
   @Override
   public boolean existsData(String container, String blobPath, String fileName) {
-    boolean result = getBlockBlobClient(container, blobPath, fileName, false).exists();
+    boolean result = getBlockBlobClient(container, blobPath, fileName).exists();
     log.info("containerName:[{}], blobPath:[{}], exists :[{}]", container, blobPath, result);
     return result;
   }
 
   private BlockBlobClient getBlockBlobClient(final String containerName, final String directory,
-      final String fileName, final Boolean isPublic) {
-    final BlobContainerClient blobContainerClient =
-        blobContainerClientFactory.from(containerName, isPublic);
+      final String fileName) {
+    final BlobContainerClient blobContainerClient = blobContainerClientFactory.from(containerName);
     return blobContainerClient.getBlobClient(directory + "/" + fileName).getBlockBlobClient();
   }
-
 
 }
