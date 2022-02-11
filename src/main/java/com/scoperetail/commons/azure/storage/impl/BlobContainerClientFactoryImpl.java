@@ -1,7 +1,6 @@
 package com.scoperetail.commons.azure.storage.impl;
 
 import java.util.Objects;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /*-
@@ -32,7 +31,6 @@ import org.springframework.stereotype.Component;
 
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
-import com.azure.storage.blob.models.PublicAccessType;
 import com.scoperetail.commons.azure.storage.api.BlobContainerClientFactory;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,11 +39,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @AllArgsConstructor
 public class BlobContainerClientFactoryImpl implements BlobContainerClientFactory {
-  
+
   private BlobServiceClient blobServiceClient;
 
   @Override
-  public BlobContainerClient from(final String containerName, final Boolean isPublic) {
+  public BlobContainerClient from(final String containerName) {
     Objects.requireNonNull(containerName);
     final BlobContainerClient blobContainerClient =
         blobServiceClient.getBlobContainerClient(containerName);
@@ -55,9 +53,6 @@ public class BlobContainerClientFactoryImpl implements BlobContainerClientFactor
     } else {
       log.info("Creating Container:[{}]", containerName);
       blobContainerClient.create();
-      if (isPublic) {
-        blobContainerClient.setAccessPolicy(PublicAccessType.BLOB, null);
-      }
     }
     return blobContainerClient;
   }
