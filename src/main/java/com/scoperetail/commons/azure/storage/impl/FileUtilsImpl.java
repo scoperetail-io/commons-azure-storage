@@ -12,10 +12,10 @@ package com.scoperetail.commons.azure.storage.impl;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -31,8 +31,12 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import com.azure.storage.common.ParallelTransferOptions;
 import com.azure.storage.file.share.ShareClient;
 import com.azure.storage.file.share.ShareClientBuilder;
 import com.azure.storage.file.share.ShareDirectoryClient;
@@ -40,23 +44,41 @@ import com.azure.storage.file.share.ShareFileClient;
 import com.azure.storage.file.share.ShareFileClientBuilder;
 import com.scoperetail.commons.azure.storage.api.StorageUtils;
 import com.scoperetail.commons.azure.storage.config.AzureConfig;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Component("fileUtils")
 @Slf4j
 public class FileUtilsImpl extends AbstractStorageUtils implements StorageUtils {
 
-  @Autowired
-  private AzureConfig azureConfig;
+  @Value("${azure.block.size.in.bits:4194304}")
+  private Long azureBlockSize;
+
+  @Value("${azure.max.single.upload.size.in.bits:4194304}")
+  private Long azureMaxSingleUploadSize;
+
+  @Value("${azure.max.concurrency:1}")
+  private Integer azureMaxConcurrency;
+
+  @Autowired private AzureConfig azureConfig;
 
   @Override
-  public String uploadData(String fileShare, String directory, String fileName, String message,
-      Boolean isPublic) throws UnsupportedEncodingException {
+  public String uploadData(
+      String fileShare, String directory, String fileName, String message, Boolean isPublic)
+      throws UnsupportedEncodingException {
     ShareFileClient fileClient = getShareFileClient(fileShare, directory, fileName);
     InputStream dataStream = new ByteArrayInputStream(message.getBytes(StandardCharsets.UTF_8));
     fileClient.create(message.length());
-    fileClient.uploadRange(dataStream, message.length());
+    fileClient.upload(dataStream, message.length(), getParallelTransferOptions());
     return URLDecoder.decode(fileClient.getFileUrl(), StandardCharsets.UTF_8.toString());
+  }
+
+  private ParallelTransferOptions getParallelTransferOptions() {
+    ParallelTransferOptions parallelOptions = new ParallelTransferOptions();
+    parallelOptions.setBlockSizeLong(azureBlockSize);
+    parallelOptions.setMaxConcurrency(azureMaxConcurrency);
+    parallelOptions.setMaxSingleUploadSizeLong(azureMaxSingleUploadSize);
+    return parallelOptions;
   }
 
   @Override
@@ -66,8 +88,8 @@ public class FileUtilsImpl extends AbstractStorageUtils implements StorageUtils 
   }
 
   @Override
-  public void copyData(String fileShare, String destinationDirectory, String fileName,
-      String sourceURL) {
+  public void copyData(
+      String fileShare, String destinationDirectory, String fileName, String sourceURL) {
     ShareFileClient fileClient = getShareFileClient(fileShare, destinationDirectory, fileName);
     fileClient.beginCopy(sourceURL, null, null);
   }
@@ -79,8 +101,11 @@ public class FileUtilsImpl extends AbstractStorageUtils implements StorageUtils 
 
   private ShareFileClient getShareFileClient(String fileShare, String directory, String fileName) {
     ShareDirectoryClient dirClient =
-        new ShareFileClientBuilder().connectionString(azureConfig.getConnectionStr())
-            .shareName(fileShare).resourcePath(directory).buildDirectoryClient();
+        new ShareFileClientBuilder()
+            .connectionString(azureConfig.getConnectionStr())
+            .shareName(fileShare)
+            .resourcePath(directory)
+            .buildDirectoryClient();
     return dirClient.getFileClient(fileName);
   }
 
@@ -88,8 +113,10 @@ public class FileUtilsImpl extends AbstractStorageUtils implements StorageUtils 
     boolean result = true;
     try {
       ShareClient shareClient =
-          new ShareClientBuilder().connectionString(azureConfig.getConnectionStr())
-              .shareName(fileShare.toLowerCase()).buildClient();
+          new ShareClientBuilder()
+              .connectionString(azureConfig.getConnectionStr())
+              .shareName(fileShare.toLowerCase())
+              .buildClient();
       if (shareClient.exists()) {
         log.trace("FileShare already exists :: {}", fileShare);
       } else {
@@ -125,8 +152,11 @@ public class FileUtilsImpl extends AbstractStorageUtils implements StorageUtils 
 
   private void createNestedDirectories(String fileShare, String directory) {
     ShareDirectoryClient dirClient =
-        new ShareFileClientBuilder().connectionString(azureConfig.getConnectionStr())
-            .shareName(fileShare).resourcePath(directory).buildDirectoryClient();
+        new ShareFileClientBuilder()
+            .connectionString(azureConfig.getConnectionStr())
+            .shareName(fileShare)
+            .resourcePath(directory)
+            .buildDirectoryClient();
     if (dirClient.exists()) {
       log.trace("Directory :: {} already exists under share :: {}", directory, fileShare);
     } else {
